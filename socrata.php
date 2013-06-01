@@ -2,7 +2,7 @@
 
 class Socrata {
   // The base URL for this Socrata API, ex: http://data.medicare.gov/api or http://www.socrata.com/api
-  private $root_url = "http://opendata.socrata.com/api";
+  private $root_url = " http://api.census.gov/data/2010/acs5?key=9b64236d2e9459864b2ed1bfe20abfee4df43261";
 
   // App Token
   private $app_token = "";
@@ -79,6 +79,15 @@ class Socrata {
     return json_decode($response, true);
   }
 
+  
+  public function getRetailTradeEstablishments() {
+      // construct the query string
+      $qstring = "";
+      // issue get
+      return get($root_url, $qstring);
+
+      
+  }
  // Convenience function for Posts
   public function post($path, $json_filter) {
 
