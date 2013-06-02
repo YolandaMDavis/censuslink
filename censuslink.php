@@ -64,6 +64,11 @@ class CensusLink {
   }
   
   public function getIncomeByCounty($county = 121, $state = 13) {
+      
+      if (!isset($county) || !isset($state)) {
+          echo "Error: county parm or state parm not set properly";
+          die();
+      }
 
     // Create an API map to be given as json after results are used
     $income_map = array(
