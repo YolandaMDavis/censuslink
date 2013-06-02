@@ -112,7 +112,9 @@ class CensusLink {
       }
     }
 
-    echo json_encode($income_map);
+    $json = isset($_REQUEST['callback']) ? "{$_REQUEST['callback']}(" . json_encode($income_map) . ")" : json_encode($income_map);
+
+    echo $json;
   }
 }
 
