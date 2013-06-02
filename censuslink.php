@@ -14,6 +14,8 @@ if( isset( $_REQUEST['action'] ) ) {
 
 }
 
+$output['censusLink']['keys'] = $censusLink->included;
+
 $output = isset( $_REQUEST['callback'] ) ? "{$_REQUEST['callback']}(" . json_encode( $output ) . ")" : json_encode( $output );
 
 echo $output;
@@ -33,6 +35,8 @@ class CensusLink {
 
   private $county = "";
   private $state = "";
+
+  public $included = array();
 
   //@todo remove the app token once the api has been shown off
   // Basic constructor
@@ -120,6 +124,8 @@ class CensusLink {
 
     $this->buildMap(&$income_map, 'income', 'B19001');
 
+    $this->included[] = 'income';
+
     return $income_map;
   }
 
@@ -146,6 +152,8 @@ class CensusLink {
     );
 
     $this->buildMap(&$education_map, 'education', 'B07409');
+
+    $this->included[] = 'education';
 
     return $education_map;
   }
@@ -174,6 +182,8 @@ class CensusLink {
     );
 
     $this->buildMap(&$ethnicity_map, 'ethnicity', 'B02001');
+
+    $this->included[] = 'ethnicity';
 
     return $ethnicity_map;
   }
@@ -241,5 +251,8 @@ class CensusLink {
     }//end for
 
   }// end function buildMap
+
+
+
 
 }// end class
