@@ -9,7 +9,7 @@ if( isset( $_REQUEST['action'] ) ) {
   $actions = explode(',', $_REQUEST['action']);
 
   foreach( $actions as $action ) {
-    $output[] = call_user_func( array( $censusLink, $action ) );
+    $output['censusLink'] = call_user_func( array( $censusLink, $action ) );
   }
 
 }
@@ -88,6 +88,11 @@ class CensusLink {
   
   public function getIncomeByCounty() {
 
+    if (!isset($this->county) || !isset($this->state)) {
+      echo "Error: county param or state param not set properly";
+      die();
+    }
+
     // Create an API map to be given as json after results are used
     $income_map = array(
       "income" => array(
@@ -113,36 +118,18 @@ class CensusLink {
         )
     );
 
-
-    // Construct the query string
-    $qstring = "&get=B19001_001E,B19001" . implode( ',B19001', array_keys( $income_map['income']['results'] ) ) . "&for=county:{$this->county}&in=state:{$this->state}";
-
-    // Issue get
-    $results = $this->get( $qstring );
-
-    // Loop throught the so-called JSON response to figure out where things go
-    for( $i = 0; $i < count( $results[1] ); $i++ ) {
-
-      // One result is the totals so we need to make a special case due to placement in map
-      if( $results[0][$i] == 'B19001_001E' ) {
-
-        $income_map['income']['_001E']['quantity'] = $results[1][$i];
-
-      } else {
-
-        if( !empty( $income_map['income']['results'][substr( $results[0][$i], 6 )] ) ) {
-          // @todo check that the element exists before putting into the map
-          $income_map['income']['results'][substr( $results[0][$i], 6 )]['quantity'] = $results[1][$i];
-        }
-      
-      }
-    }
+    $this->buildMap(&$income_map, 'income', 'B19001');
 
     return $income_map;
   }
 
   // Function for getting the education levels
   public function getEducationByCounty() {
+
+    if (!isset($this->county) || !isset($this->state)) {
+      echo "Error: county param or state param not set properly";
+      die();
+    }
 
     // Create an API map to be given as json after results are used
     $education_map = array(
@@ -158,29 +145,7 @@ class CensusLink {
         )
     );
 
-    // Construct the query string
-    $qstring = "&get=B07409_001E,B07409" . implode( ',B07409', array_keys( $education_map['education']['results'] ) ) . "&for=county:{$this->county}&in=state:{$this->state}";
-
-    // Issue get
-    $results = $this->get( $qstring );
-
-    // Loop throught the so-called JSON response to figure out where things go
-    for( $i = 0; $i < count( $results[1] ); $i++ ) {
-
-      // One result is the totals so we need to make a special case due to placement in map
-      if( substr( $results[0][$i], 6 ) == '_001E' ) {
-
-        $education_map['education']['_001E']['quantity'] = $results[1][$i];
-
-      } else {
-
-        if( !empty( $education_map['education']['results'][substr( $results[0][$i], 6 )] ) ) {
-          // @todo check that the element exists before putting into the map
-          $education_map['education']['results'][substr( $results[0][$i], 6 )]['quantity'] = $results[1][$i];
-        }
-      
-      }
-    }
+    $this->buildMap(&$education_map, 'education', 'B07409');
 
     return $education_map;
   }
@@ -208,29 +173,7 @@ class CensusLink {
         )
     );
 
-    // Construct the query string
-    $qstring = "&get=B02001_001E,B02001" . implode( ',B02001', array_keys( $ethnicity_map['ethnicity']['results'] ) ) . "&for=county:{$this->county}&in=state:{$this->state}";
-
-    // Issue get
-    $results = $this->get( $qstring );
-
-    // Loop throught the so-called JSON response to figure out where things go
-    for( $i = 0; $i < count( $results[1] ); $i++ ) {
-
-      // One result is the totals so we need to make a special case due to placement in map
-      if( substr( $results[0][$i], 6 ) == '_001E' ) {
-
-        $ethnicity_map['ethnicity']['_001E']['quantity'] = $results[1][$i];
-
-      } else {
-
-        if( !empty( $ethnicity_map['ethnicity']['results'][substr( $results[0][$i], 6 )] ) ) {
-          // @todo check that the element exists before putting into the map
-          $ethnicity_map['ethnicity']['results'][substr( $results[0][$i], 6 )]['quantity'] = $results[1][$i];
-        }
-      
-      }
-    }
+    $this->buildMap(&$ethnicity_map, 'ethnicity', 'B02001');
 
     return $ethnicity_map;
   }
@@ -263,6 +206,37 @@ class CensusLink {
 
     // Issue get
     return array('states' => $this->get( $qstring ) );
+
+  }
+
+
+
+  // This function is used to build the quantities into the map for the demographic
+  private function buildMap($map, $type, $prefix) {
+
+    // Construct the query string
+    $qstring = "&get={$prefix}_001E,{$prefix}" . implode( ",{$prefix}", array_keys( $map["{$type}"]['results'] ) ) . "&for=county:{$this->county}&in=state:{$this->state}";
+
+    // Issue get
+    $results = $this->get( $qstring );
+
+    // Loop throught the so-called JSON response to figure out where things go
+    for( $i = 0; $i < count( $results[1] ); $i++ ) {
+
+      // One result is the totals so we need to make a special case due to placement in map
+      if( substr( $results[0][$i], 6 ) == '_001E' ) {
+
+        $map["{$type}"]['_001E']['quantity'] = $results[1][$i];
+
+      } else {
+
+        if( !empty( $map["{$type}"]['results'][substr( $results[0][$i], 6 )] ) ) {
+          // @todo check that the element exists before putting into the map
+          $map["{$type}"]['results'][substr( $results[0][$i], 6 )]['quantity'] = $results[1][$i];
+        }
+      
+      }
+    }
 
   }
 
