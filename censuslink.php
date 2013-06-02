@@ -9,7 +9,7 @@ if( isset( $_REQUEST['action'] ) ) {
   $actions = explode(',', $_REQUEST['action']);
 
   foreach( $actions as $action ) {
-    $output['censusLink'][] = call_user_func( array( $censusLink, $action ) );
+    $output['censusLink'] = call_user_func( array( $censusLink, $action ) );
   }
 
 }
