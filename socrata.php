@@ -107,13 +107,24 @@ class CensusLink {
 
       } else {
 
+        // Toss it into the correct place
         $income_map['income']['results'][substr($results[0][$i], 6)]['quantity'] = $results[1][$i];
       
       }
     }
 
-    echo json_encode($income_map);
-  }
-}
+    $json = isset($_REQUEST['callback']) ? "{$_REQUEST['callback']}(" . json_encode($income_map) . ")" : json_encode($income_map);
 
-?>
+    echo $json;
+  }
+
+
+  // Give back the education information about people within a county or state
+  public function getEducationByCounty() {
+
+    // Create the education level needed
+
+  }
+
+
+}
