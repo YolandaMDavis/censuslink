@@ -224,6 +224,11 @@ class CensusLink {
   // This function is used to build the quantities into the map for the demographic
   private function buildMap($map, $type, $prefix) {
 
+    if (!isset($this->county) || !isset($this->state)) {
+      echo "Error: county param or state param not set properly";
+      die();
+    }
+
     // Construct the query string
     $qstring = "&get={$prefix}_001E,{$prefix}" . implode( ",{$prefix}", array_keys( $map["{$type}"]['results'] ) ) . "&for=county:{$this->county}&in=state:{$this->state}";
 
