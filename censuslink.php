@@ -207,7 +207,7 @@ class CensusLink {
     // Issue get
     return array('states' => $this->get( $qstring ) );
 
-  }
+  }//end function getStateIdList
 
 
 
@@ -233,11 +233,13 @@ class CensusLink {
         if( !empty( $map["{$type}"]['results'][substr( $results[0][$i], 6 )] ) ) {
           // @todo check that the element exists before putting into the map
           $map["{$type}"]['results'][substr( $results[0][$i], 6 )]['quantity'] = $results[1][$i];
-        }
+
+        } // end if
       
-      }
-    }
+      } // end if-else
 
-  }
+    }//end for
 
-}
+  }// end function buildMap
+
+}// end class
