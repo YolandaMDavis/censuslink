@@ -1,10 +1,12 @@
 <?php
+require_once("censuslink.php");
 
-require_once "censuslink.php";
-
-$api_key = isset( $_REQUEST['key'] ) ? $_REQUEST['key'] : "9b64236d2e9459864b2ed1bfe20abfee4df43261";
+$api_key = isset( $_REQUEST['key'] ) ? $_REQUEST['key'] : "";
 
 $censusLink = new CensusLink($api_key);
+
+$censusLink->state = $_REQUEST['state'];
+$censusLink->county = $_REQUEST['county'];
 
 $output = array();
 
@@ -17,8 +19,6 @@ if( isset( $_REQUEST['action'] ) ) {
   }
 
 }
-
-$output['censusLink']['keys'] = $censusLink->included;
 
 $output = isset( $_REQUEST['callback'] ) ? "{$_REQUEST['callback']}(" . json_encode( $output ) . ")" : json_encode( $output );
 

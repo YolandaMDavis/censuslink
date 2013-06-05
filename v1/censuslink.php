@@ -1,13 +1,5 @@
 <?php
 
-
-
-
-/*
- * Start of the CensusLink class
- *
- */
-
 class CensusLink {
   // The base URL for this Socrata API, ex: http://data.medicare.gov/api or http://www.socrata.com/api
   private $root_url = "http://api.census.gov/data/2010/acs5?key=";
@@ -15,20 +7,17 @@ class CensusLink {
   // App Token
   private $app_token = "";
 
-  private $county = "";
-  private $state = "";
+  public $county = "";
+  public $state = "";
 
   public $included = array();
 
   //@todo remove the app token once the api has been shown off
   // Basic constructor
-  public function __construct( $app_token = "9b64236d2e9459864b2ed1bfe20abfee4df43261" ) {
+  public function __construct( $app_token = "" ) {
     
     // Check that the token given was not just an empty string
     if( $app_token != '' ) {
-
-      $this->county = isset($_REQUEST['county']) ? $_REQUEST['county'] : "121";
-      $this->state = isset($_REQUEST['state']) ? $_REQUEST['state'] : "13";
 
       $this->app_token = isset( $_REQUEST['key'] ) ? $_REQUEST['key'] : $app_token;
       return true;
@@ -72,7 +61,7 @@ class CensusLink {
     return json_decode( $response, true );
   }
   
-  public function getIncomeByCounty() {
+  public function income() {
 
     if (!isset($this->county) || !isset($this->state)) {
       echo "Error: county param or state param not set properly";
@@ -104,7 +93,7 @@ class CensusLink {
         )
     );
 
-    $this->buildMap(&$income_map, 'income', 'B19001');
+    $this->buildMap($income_map, 'income', 'B19001');
 
     $this->included[] = 'income';
 
@@ -112,7 +101,7 @@ class CensusLink {
   }
 
   // Function for getting the education levels
-  public function getEducationByCounty() {
+  public function education() {
 
     if (!isset($this->county) || !isset($this->state)) {
       echo "Error: county param or state param not set properly";
@@ -133,7 +122,7 @@ class CensusLink {
         )
     );
 
-    $this->buildMap(&$education_map, 'education', 'B07409');
+    $this->buildMap($education_map, 'education', 'B07409');
 
     $this->included[] = 'education';
 
@@ -141,7 +130,7 @@ class CensusLink {
   }
 
   // Function for getting the ethnicity by county
-  public function getEthnicityByCounty() {
+  public function ethnicity() {
 
     if (!isset($this->county) || !isset($this->state)) {
       echo "Error: county param or state param not set properly";
@@ -163,14 +152,14 @@ class CensusLink {
         )
     );
 
-    $this->buildMap(&$ethnicity_map, 'ethnicity', 'B02001');
+    $this->buildMap($ethnicity_map, 'ethnicity', 'B02001');
 
     $this->included[] = 'ethnicity';
 
     return $ethnicity_map;
   }
 
-  public function getCountyList() {
+  public function countylist() {
 
     if (!isset($this->state)) {
       echo "Error: state param not set properly";
@@ -191,7 +180,7 @@ class CensusLink {
 
   }
 
-  public function getStateIdList() {
+  public function statelist() {
 
     // Construct the query string
     $qstring = "&get=NAME&for=state:*";
@@ -204,7 +193,7 @@ class CensusLink {
 
 
   // This function is used to build the quantities into the map for the demographic
-  private function buildMap($map, $type, $prefix) {
+  private function buildMap(&$map, $type, $prefix) {
 
     if (!isset($this->county) || !isset($this->state)) {
       echo "Error: county param or state param not set properly";
@@ -239,7 +228,75 @@ class CensusLink {
 
   }// end function buildMap
 
+  public function search() {
 
+    if( !is_numeric( $this->state ) ) {
+
+      //state is not in code form
+      $statelist = $this->statelist();
+
+      if( is_null( $this->state ) || $this->state == "" ) {
+
+        return $statelist;
+
+      } else {
+
+        return $this->compare_states($this->state, $statelist['states'], true );
+
+      }
+
+      //attempt to find closest match 
+
+      //send back possibilities 
+
+      //unless exact match then return exact
+
+    } else {
+
+      //we have an attempt at a state so check if it is good
+
+      //send back error and list of states/codes if bad
+
+      //if state is good then attempt the county
+
+      //if county is good send back okay
+
+      //else if county is close send back possibilities
+
+      //else send back error and list of counties
+
+
+
+    }
+
+  }
+
+
+  private function compare_states( $needle, $statelist, $code = false ) {
+
+    $matches = array();
+
+    foreach( $statelist as $state ) {
+
+      if( strpos( strtolower( $state[0] ), strtolower( $needle ) ) !== false ) {
+        
+        $matches[$state[0]] = $state[1];
+
+      }
+
+    }
+
+    if( count( $matches ) > 0 ) {
+
+      return $matches;
+
+    } else if( count( $matches) == 0) {
+
+      return 'Error: No valid state matches.';
+
+    }
+
+  }
 
 
 }// end class
