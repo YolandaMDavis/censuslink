@@ -5,8 +5,8 @@ $api_key = isset( $_REQUEST['key'] ) ? $_REQUEST['key'] : "";
 
 $censusLink = new CensusLink($api_key);
 
-$censusLink->state = $_REQUEST['state'];
-$censusLink->county = $_REQUEST['county'];
+$censusLink->state = isset( $_REQUEST['state'] ) ? $_REQUEST['state'] : null;
+$censusLink->county = isset( $_REQUEST['county'] ) ? $_REQUEST['county'] : null;
 
 $output = array();
 
